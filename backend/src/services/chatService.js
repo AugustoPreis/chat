@@ -28,6 +28,17 @@ async function buscarPorId(id) {
   return chat;
 }
 
+async function permiteEntrar(id) {
+  const chat = await buscarPorId(id);
+  const qtdUsuariosAtivos = await chatRepository.qtdUsuariosAtivos(id);
+
+  if (qtdUsuariosAtivos >= chat.qtdMaximaUsuarios) {
+    return false;
+  }
+
+  return true;
+}
+
 async function cadastrar(params, usuarioLogado) {
   const { nome, qtdMaximaUsuarios, privado } = params;
 
@@ -57,4 +68,5 @@ module.exports = {
   listar,
   buscarPorId,
   cadastrar,
+  permiteEntrar,
 }
