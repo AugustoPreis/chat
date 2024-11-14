@@ -1,7 +1,8 @@
 require('dotenv/config');
 
 const http = require('http');
-const express = require('express')
+const path = require('path');
+const express = require('express');
 const cors = require('cors');
 const { connect } = require('./config/database');
 const socketService = require('./services/socketService');
@@ -18,6 +19,12 @@ async function startServer(port) {
   app.use(express.json({ limit: '50mb' }));
   app.use(routes);
   app.use(errorHandler);
+
+  //build de produção
+  app.use(express.static(path.join(__dirname, './dist')));
+  app.get('/*', (_, res) => {
+    res.sendFile(path.join(__dirname, './dist/index.html'));
+  });
 
   await connect(true);
   logger('info', 'Banco conectado');

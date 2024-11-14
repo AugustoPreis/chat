@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "description": "Backend do Chat em Node.js",
   "scripts": {
-    "start": "nodemon ./src/index.js"
+    "start": "nodemon ./src/index.js",
+    "build": "node ./src/build.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -20,6 +21,7 @@
     "winston": "^3.16.0"
   },
   "devDependencies": {
+    "esbuild": "^0.24.0",
     "eslint": "^9.14.0",
     "nodemon": "^3.1.7"
   }

@@ -9,7 +9,7 @@ export default defineConfig(() => {
   return {
     plugins: [react()],
     build: {
-      outDir: '../backend/build/src/dist',
+      outDir: '../backend/build/dist',
       emptyOutDir: true,
     },
     server: {
