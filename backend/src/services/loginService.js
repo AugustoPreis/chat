@@ -28,6 +28,7 @@ async function login(params) {
     nome: usuarioSalvo.nome,
     admin: usuarioSalvo.admin,
     token: null,
+    dataLogin: new Date(),
   };
 
   usuarioJWT.token = sign(usuarioJWT);
