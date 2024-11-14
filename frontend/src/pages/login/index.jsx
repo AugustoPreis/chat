@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Button, Col, Divider, Form, Input, message, notification, Radio, Row } from 'antd';
+import { Button, Col, Divider, Form, Input, message, notification, Row } from 'antd';
 import { UnlockOutlined, UserOutlined } from '@ant-design/icons';
 import { useAuth } from '../../providers/AuthProvider';
+import Cadastro from './Cadastro';
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
@@ -38,6 +39,13 @@ export default function Login() {
         {text}
       </b>
     );
+  }
+
+  const preencherCampos = (values) => {
+    form.setFieldsValue({
+      usuario: values.login,
+      senha: values.senha,
+    });
   }
 
   if (auth.isAuthenticated()) {
@@ -110,6 +118,12 @@ export default function Login() {
                 onClick={form.submit}>
                 Entrar
               </Button>
+            </Col>
+            <Col span={24}
+              style={{ marginTop: 10 }}>
+              <Cadastro onClose={preencherCampos}>
+                Não possui uma conta? <a>Cadastre-se</a>
+              </Cadastro>
             </Col>
           </Row>
         </Form>

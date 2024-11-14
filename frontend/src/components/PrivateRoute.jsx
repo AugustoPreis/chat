@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Col, Row } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { useAuth } from '../providers/AuthProvider';
+import UsuarioLogado from '../pages/usuario/UsuarioLogado';
 
 
 export default function PrivateRoute() {
@@ -42,6 +43,9 @@ export default function PrivateRoute() {
         </Row>
       }>
         <Row justify='center'>
+          <Col span={23}>
+            <UsuarioLogado />
+          </Col>
           <Col span={23}
             style={{ paddingTop: 25 }}>
             <Outlet />

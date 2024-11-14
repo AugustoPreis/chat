@@ -19,6 +19,7 @@ export default defineConfig({
     port: FRONTEND_PORT,
     proxy: {
       '/login': PROXY_OPTIONS,
+      '/cadastro': PROXY_OPTIONS,
       '/api': PROXY_OPTIONS,
     },
   },
