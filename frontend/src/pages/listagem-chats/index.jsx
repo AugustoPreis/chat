@@ -14,7 +14,6 @@ export default function ListagemChats() {
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const auth = useAuth();
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -43,11 +42,6 @@ export default function ListagemChats() {
     navigate(`/chats/${id}`);
   }
 
-  const logout = () => {
-    auth.logout();
-    navigate('/entrar');
-  }
-
   return (
     <Spin spinning={loading}>
       <Row gutter={[10, 5]}>
@@ -62,20 +56,9 @@ export default function ListagemChats() {
                   placeholder='Filtrar chats...'
                   onChange={(e) => setFiltro(e.target.value)} />
               </Col>
-              <Col xl={{ span: 4, offset: 4 }}
-                lg={{ span: 4, offset: 0 }}
-                sm={8}
-                xs={24}>
-                <Button block
-                  danger
-                  size='large'
-                  onClick={logout}>
-                  Sair
-                </Button>
-              </Col>
-              <Col xl={4}
-                lg={5}
-                sm={8}
+              <Col xl={{ span: 4, offset: 8 }}
+                lg={{ span: 5, offset: 4 }}
+                sm={12}
                 xs={24}>
                 <SalaPrivada onClose={(id) => entrarChat(id)}>
                   <Button block
@@ -86,7 +69,7 @@ export default function ListagemChats() {
               </Col>
               <Col xl={4}
                 lg={5}
-                sm={8}
+                sm={12}
                 xs={24}>
                 <NovoChat onClose={(id) => entrarChat(id)}>
                   <Button block
