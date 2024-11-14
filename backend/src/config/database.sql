@@ -13,7 +13,6 @@ CREATE TABLE chats (
 	id uuid NOT NULL PRIMARY KEY,
 	criador uuid NOT NULL REFERENCES usuarios,
 	nome varchar(100) NOT NULL,
-	qtd_usuarios_ativos int NOT NULL,
 	qtd_maxima_usuarios int NOT NULL,
 	privado bool NOT NULL DEFAULT FALSE
 );

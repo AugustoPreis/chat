@@ -3,15 +3,19 @@ const database = require('../config/database');
 async function listar(filtro) {
   const sql = `
     SELECT
-      chats.id,
-      chats.nome,
-      chats.qtd_maxima_usuarios "qtdMaximaUsuarios",
-      chats.qtd_usuarios_ativos "qtdAtualUsuarios"
-    FROM chats
-    WHERE chats.privado IS FALSE
-      AND chats.qtd_usuarios_ativos > 0
-      AND chats.nome ILIKE '%'||$1||'%'
-    ORDER BY chats.nome, chats.qtd_usuarios_ativos DESC;
+      tab.*
+    FROM (
+      SELECT
+        chats.id,
+        chats.nome,
+        chats.qtd_maxima_usuarios "qtdMaximaUsuarios",
+        usuarios_ativos_chat(chats.id) "qtdAtualUsuarios"
+      FROM chats
+      WHERE chats.privado IS FALSE
+        AND chats.nome ILIKE '%'||$1||'%'
+    ) AS tab
+    WHERE tab."qtdAtualUsuarios" > 0
+    ORDER BY tab.nome, tab."qtdAtualUsuarios" DESC
   `;
 
   return await database.execute(sql, [filtro]);
@@ -27,7 +31,7 @@ async function buscarPorId(id) {
       chats.nome,
       chats.privado,
       chats.qtd_maxima_usuarios "qtdMaximaUsuarios",
-      chats.qtd_usuarios_ativos "qtdAtualUsuarios"
+      usuarios_ativos_chat(chats.id) "qtdAtualUsuarios"
     FROM chats
       INNER JOIN usuarios ON usuarios.id = chats.criador
     WHERE chats.id = $1
@@ -44,7 +48,6 @@ async function cadastrar(params) {
       id,
       criador,
       nome,
-      qtd_usuarios_ativos,
       qtd_maxima_usuarios,
       privado
     ) VALUES (
@@ -52,15 +55,13 @@ async function cadastrar(params) {
       $2,
       $3,
       $4,
-      $5,
-      $6
+      $5
     ) RETURNING id;
   `;
   const result = await database.execute(sql, [
     params.id,
     params.usuarioId,
     params.nome,
-    params.qtdUsuariosAtivos,
     params.qtdMaximaUsuarios,
     params.privado,
   ]);

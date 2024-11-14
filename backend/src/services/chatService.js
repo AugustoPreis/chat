@@ -56,7 +56,6 @@ async function cadastrar(params, usuarioLogado) {
     nome: nome.trim(),
     privado: !!privado,
     qtdMaximaUsuarios,
-    qtdUsuariosAtivos: 0,
   });
 
   const chatSalvo = buscarPorId(id);
