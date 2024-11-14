@@ -39,7 +39,20 @@ export default function ListagemChats() {
   }
 
   const entrarChat = (id) => {
-    navigate(`/chats/${id}`);
+    request(`/chats/${id}`, {
+      method: 'GET'
+    }).then((chat) => {
+      if (chat.qtdAtualUsuarios >= chat.qtdMaximaUsuarios) {
+        showError({ message: 'Chat cheio' });
+        fetchChats();
+
+        return;
+      }
+
+      navigate(`/chats/${id}`);
+    }).catch((err) => {
+      showError(err);
+    });
   }
 
   return (

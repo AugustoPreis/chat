@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Card, Divider, Spin } from 'antd';
+import { Card, Divider, message, Spin } from 'antd';
 import request from '../../utils/request';
 import { createSocket } from '../../utils/socket';
 import { showError } from '../../utils/error';
@@ -19,10 +19,12 @@ export default function Chat() {
 
   useEffect(() => {
     if (!id || id.trim() === '') {
-      return sairChat();
+      sairChat();
+    } else {
+      fetchChat();
     }
 
-    fetchChat();
+    return () => socketRef.current?.disconnect();
   }, [id]);
 
   const fetchChat = () => {
@@ -56,6 +58,14 @@ export default function Chat() {
     socketRef.current.on('mensagem-recebida', (mensagem) => {
       setMensagens(old => [...old, mensagem]);
     });
+
+    socketRef.current.on('erro', (error) => {
+      message.error(error.message);
+
+      if (error.disconnect) {
+        sairChat();
+      }
+    });
   }
 
   const enviarMensagem = (mensagem) => {
@@ -63,8 +73,6 @@ export default function Chat() {
   }
 
   const sairChat = () => {
-    socketRef.current.disconnect();
-
     navigate('/listagem-chats');
   }
 

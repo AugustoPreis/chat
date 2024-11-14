@@ -31,12 +31,14 @@ async function buscarPorId(id) {
 async function permiteEntrar(id) {
   const chat = await buscarPorId(id);
   const qtdUsuariosAtivos = await chatRepository.qtdUsuariosAtivos(id);
+  const result = { permite: true };
 
   if (qtdUsuariosAtivos >= chat.qtdMaximaUsuarios) {
-    return false;
+    result.permite = false;
+    result.motivo = 'Chat cheio';
   }
 
-  return true;
+  return result;
 }
 
 async function cadastrar(params, usuarioLogado) {

@@ -52,18 +52,17 @@ async function quandoConectar(socket, io) {
 
     const permiteEntrar = await chatService.permiteEntrar(socket.chat.id);
 
-    if (!permiteEntrar) {
+    if (!permiteEntrar.permite) {
       await historicoService.cadastrar({
         usuario: socket.user.id,
         chat: socket.chat.id,
         tipo: 'bloqueio-conexao',
       });
 
-      socket.disconnect();
-
-      logger('info', `Usuário "${socket.user.nome}" disconectado do chat "${socket.chat.nome}" por: Sala cheia`);
-
-      return;
+      return enviaErro(socket, {
+        message: permiteEntrar.motivo,
+        disconnect: true,
+      });
     }
 
     await historicoService.cadastrar({
@@ -84,19 +83,19 @@ async function quandoConectar(socket, io) {
 }
 
 async function quandoDesconectar(socket) {
-  try {
-    socket.on('disconnect', async () => {
-      logger('info', `Usuário ${socket.user.id} desconectado do chat ${socket.chat.id}`);
+  socket.on('disconnect', async () => {
+    try {
+      logger('info', `Usuário "${socket.user.id}" desconectado do chat "${socket.chat.id}"`);
 
       await historicoService.cadastrar({
         usuario: socket.user.id,
         chat: socket.chat.id,
         tipo: 'desconectou',
       });
-    });
-  } catch (err) {
-    handleSocketError(err);
-  }
+    } catch (err) {
+      handleSocketError(err);
+    }
+  });
 }
 
 async function enviaMensagensAnteriores(socket) {
@@ -104,6 +103,14 @@ async function enviaMensagensAnteriores(socket) {
     const mensagensAnteriores = await mensagensService.buscarMensagensAnteriores(socket.connectionDate);
 
     socket.emit('mensagens-anteriores', mensagensAnteriores);
+  } catch (err) {
+    handleSocketError(err);
+  }
+}
+
+async function enviaErro(socket, erro) {
+  try {
+    socket.emit('erro', erro);
   } catch (err) {
     handleSocketError(err);
   }
