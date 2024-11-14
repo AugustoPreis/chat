@@ -68,8 +68,19 @@ async function cadastrar(params) {
   return result[0].id;
 }
 
+async function qtdUsuariosAtivos(id) {
+  const query = `
+    SELECT
+      usuarios_ativos_chat($1) "qtd";
+  `;
+  const rows = await database.execute(query, [id]);
+
+  return rows[0].qtd;
+}
+
 module.exports = {
   listar,
   buscarPorId,
   cadastrar,
+  qtdUsuariosAtivos,
 };

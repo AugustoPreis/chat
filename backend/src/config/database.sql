@@ -35,3 +35,34 @@ CREATE TABLE public.historico (
 	descricao varchar(100) NULL,
 	data_cadastro timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
+
+CREATE OR REPLACE FUNCTION usuarios_ativos_chat(pr_chat uuid)
+RETURNS int
+LANGUAGE plpgsql
+AS $function$
+DECLARE
+	qtd int;
+BEGIN
+  SELECT
+		COUNT(DISTINCT historico.usuario)
+  INTO qtd
+  FROM historico
+  WHERE historico.chat = pr_chat
+    AND historico.tipo = 'conectou'
+    AND NOT EXISTS (
+        SELECT
+					TRUE
+        FROM historico historico2
+        WHERE historico2.usuario = historico.usuario
+          AND historico2.chat = historico.chat
+          AND historico2.data_cadastro > historico.data_cadastro
+          AND historico2.tipo = 'desconectou'
+    );
+
+	IF (qtd IS NULL OR qtd < 0) THEN
+		qtd := 0;
+	END IF;
+
+	RETURN qtd;
+END;
+$function$;
