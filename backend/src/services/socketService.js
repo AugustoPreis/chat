@@ -5,27 +5,32 @@ const { isValidString } = require('../utils/validators');
 const chatService = require('../services/chatService');
 const historicoService = require('../services/historicoService');
 const mensagensService = require('../services/mensagensService');
+const { RequestError } = require('../utils/RequestError');
 
 function adicionaMiddlewares(io) {
   io.use(async (socket, next) => {
-    const { token, chatId } = socket.handshake.auth;
+    try {
+      const { token, chatId } = socket.handshake.auth;
 
-    socket.connectionDate = new Date();
+      socket.connectionDate = new Date();
 
-    if (isValidString(token)) {
-      socket.user = decode(token);
+      if (isValidString(token)) {
+        socket.user = decode(token);
+      }
+
+      if (isValidString(chatId)) {
+        socket.chat = await chatService.buscarPorId(chatId);
+        socket.chat.id = chatId;
+      }
+
+      if (!socket.user) {
+        return next({ message: 'Usuário não autenticado' });
+      }
+
+      next();
+    } catch (err) {
+      handleSocketError(err);
     }
-
-    if (isValidString(chatId)) {
-      socket.chat = await chatService.buscarPorId(chatId);
-      socket.chat.id = chatId;
-    }
-
-    if (!socket.user) {
-      return next({ message: 'Usuário não autenticado' });
-    }
-
-    next();
   });
 }
 
@@ -42,50 +47,112 @@ async function start(httpServer) {
 }
 
 async function quandoConectar(socket, io) {
-  logger('info', `Usuário "${socket.user.nome}" conectado no chat "${socket.chat.nome}"`);
+  try {
+    logger('info', `Usuário "${socket.user.nome}" conectado no chat "${socket.chat.nome}"`);
 
-  await historicoService.cadastrar({
-    usuario: socket.user.id,
-    chat: socket.chat.id,
-    tipo: 'conectou',
-  });
+    const permiteEntrar = await chatService.permiteEntrar(socket.chat.id);
 
-  //listeners
-  quandoDesconectar(socket);
-  quandoReceberMensagem(socket, io);
+    if (!permiteEntrar) {
+      await historicoService.cadastrar({
+        usuario: socket.user.id,
+        chat: socket.chat.id,
+        tipo: 'bloqueio-conexao',
+      });
 
-  //emitters
-  enviaMensagensAnteriores(socket);
-}
+      socket.disconnect();
 
-async function quandoDesconectar(socket) {
-  socket.on('disconnect', async () => {
-    logger('info', `Usuário ${socket.user.id} desconectado do chat ${socket.chat.id}`);
+      logger('info', `Usuário "${socket.user.nome}" disconectado do chat "${socket.chat.nome}" por: Sala cheia`);
+
+      return;
+    }
 
     await historicoService.cadastrar({
       usuario: socket.user.id,
       chat: socket.chat.id,
-      tipo: 'desconectou',
+      tipo: 'conectou',
     });
-  });
+
+    //listeners
+    quandoDesconectar(socket);
+    quandoReceberMensagem(socket, io);
+
+    //emitters
+    enviaMensagensAnteriores(socket);
+  } catch (err) {
+    handleSocketError(err);
+  }
+}
+
+async function quandoDesconectar(socket) {
+  try {
+    socket.on('disconnect', async () => {
+      logger('info', `Usuário ${socket.user.id} desconectado do chat ${socket.chat.id}`);
+
+      await historicoService.cadastrar({
+        usuario: socket.user.id,
+        chat: socket.chat.id,
+        tipo: 'desconectou',
+      });
+    });
+  } catch (err) {
+    handleSocketError(err);
+  }
 }
 
 async function enviaMensagensAnteriores(socket) {
-  const mensagensAnteriores = await mensagensService.buscarMensagensAnteriores(socket.connectionDate);
+  try {
+    const mensagensAnteriores = await mensagensService.buscarMensagensAnteriores(socket.connectionDate);
 
-  socket.emit('mensagens-anteriores', mensagensAnteriores);
+    socket.emit('mensagens-anteriores', mensagensAnteriores);
+  } catch (err) {
+    handleSocketError(err);
+  }
 }
 
 async function quandoReceberMensagem(socket, io) {
   socket.on('mensagem', async (descricao) => {
-    const mensagemSalva = await mensagensService.cadastrar({
-      descricao,
-      usuario: socket.user.id,
-      chat: socket.chat.id,
-    });
+    try {
+      const mensagemSalva = await mensagensService.cadastrar({
+        descricao,
+        usuario: socket.user.id,
+        chat: socket.chat.id,
+      });
 
-    socket.server.emit('mensagem-recebida', mensagemSalva);
+      socket.server.emit('mensagem-recebida', mensagemSalva);
+    } catch (err) {
+      handleSocketError(err);
+    }
   });
+}
+
+function handleSocketError(error) {
+  const message = formatSocketError(error);
+
+  logger('error', message);
+}
+
+function formatSocketError(error) {
+  if (!error) {
+    return 'Erro desconhecido';
+  }
+
+  if (error instanceof RequestError) {
+    return error.message;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (typeof error === 'string') {
+    return error;
+  }
+
+  try {
+    return JSON.stringify(error);
+  } catch (error) {
+    console.error('Impossível formatar error do socket: ', error);
+  }
 }
 
 module.exports = { start };
