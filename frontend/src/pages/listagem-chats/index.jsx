@@ -16,12 +16,8 @@ export default function ListagemChats() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      fetchChats();
-    }, 350);
-
-    return () => clearTimeout(timeout);
-  }, [filtro]);
+    fetchChats();
+  }, []);
 
   const fetchChats = () => {
     setLoading(true);
@@ -62,15 +58,26 @@ export default function ListagemChats() {
           <Card>
             <Row gutter={[10, 5]}>
               <Col xl={8}
-                lg={10}
+                lg={16}
                 xs={24}>
                 <Input size='large'
                   value={filtro}
                   placeholder='Filtrar chats...'
                   onChange={(e) => setFiltro(e.target.value)} />
               </Col>
-              <Col xl={{ span: 4, offset: 8 }}
-                lg={{ span: 5, offset: 4 }}
+              <Col xl={{ span: 4, offset: 4 }}
+                md={8}
+                sm={12}
+                xs={24}>
+                <Button block
+                  size='large'
+                  onClick={fetchChats}>
+                  Atualizar
+                </Button>
+              </Col>
+              <Col xl={{ span: 4, offset: 0 }}
+                lg={{ span: 8, offset: 16 }}
+                md={8}
                 sm={12}
                 xs={24}>
                 <SalaPrivada onClose={(id) => entrarChat(id)}>
@@ -80,9 +87,9 @@ export default function ListagemChats() {
                   </Button>
                 </SalaPrivada>
               </Col>
-              <Col xl={4}
-                lg={5}
-                sm={12}
+              <Col xl={{ span: 4, offset: 0 }}
+                lg={{ span: 8, offset: 16 }}
+                md={8}
                 xs={24}>
                 <NovoChat onClose={(id) => entrarChat(id)}>
                   <Button block
