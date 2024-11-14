@@ -48,7 +48,7 @@ async function start(httpServer) {
 
 async function quandoConectar(socket, io) {
   try {
-    logger('info', `Usuário "${socket.user.nome}" conectado no chat "${socket.chat.nome}"`);
+    logger('info', `Usuário "${socket.user.id}" conectado no chat "${socket.chat.id}"`);
 
     const permiteEntrar = await chatService.permiteEntrar(socket.chat.id);
 
