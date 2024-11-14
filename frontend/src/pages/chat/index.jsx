@@ -63,6 +63,8 @@ export default function Chat() {
   }
 
   const sairChat = () => {
+    socketRef.current.disconnect();
+
     navigate('/listagem-chats');
   }
 
