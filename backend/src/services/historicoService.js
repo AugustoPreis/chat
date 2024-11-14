@@ -42,7 +42,7 @@ async function cadastrar(params) {
     dataCadastro: new Date(),
   });
 
-  return buscarPorChatUsuario({ usuario, chat });
+  return await buscarPorChatUsuario({ usuario, chat });
 }
 
 module.exports = {
