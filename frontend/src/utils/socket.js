@@ -2,7 +2,10 @@ import { io } from 'socket.io-client';
 import { getToken } from '../providers/AuthProvider';
 
 export function createSocket(auth = {}) {
-  return io('http://localhost:3000', {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const backendPort = import.meta.env.VITE_BACKEND_PORT;
+
+  return io([backendUrl, backendPort].join(':'), {
     autoConnect: false,
     auth: {
       token: getToken(),

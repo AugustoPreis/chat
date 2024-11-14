@@ -1,26 +1,26 @@
+import 'dotenv/config';
+
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-const BACKEND_PORT = 3000;
-const FRONTEND_PORT = 4000;
-const PROXY_OPTIONS = {
-  target: `http://localhost:${BACKEND_PORT}`,
-  changeOrigin: true,
-  secure: false,
-};
+export default defineConfig(() => {
+  const { env } = process;
 
-export default defineConfig({
-  plugins: [react()],
-  build: {
-    outDir: '../backend/build/src/dist',
-    emptyOutDir: true,
-  },
-  server: {
-    port: FRONTEND_PORT,
-    proxy: {
-      '/login': PROXY_OPTIONS,
-      '/cadastro': PROXY_OPTIONS,
-      '/api': PROXY_OPTIONS,
+  return {
+    plugins: [react()],
+    build: {
+      outDir: '../backend/build/src/dist',
+      emptyOutDir: true,
     },
-  },
+    server: {
+      port: env.VITE_FRONTEND_PORT,
+      proxy: {
+        '^/(login|cadastro|api)': {
+          target: [env.VITE_BACKEND_URL, env.VITE_BACKEND_PORT].join(':'),
+          changeOrigin: true,
+          secure: false,
+        },
+      },
+    },
+  }
 });
