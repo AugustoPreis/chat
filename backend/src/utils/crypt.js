@@ -1,8 +1,12 @@
-const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 
 function hash(value) {
-  return bcrypt.hashSync(value, 10);
+  const salt = random(16);
+  const hashValue = crypto
+    .pbkdf2Sync(value, salt, 10000, 64, 'sha512')
+    .toString('hex');
+
+  return `${salt}:${hashValue}`;
 }
 
 function encrypt(decrypted) {
@@ -33,7 +37,13 @@ function decrypt(encrypted, iv) {
 }
 
 function compare(decrypted, encrypted) {
-  return bcrypt.compareSync(decrypted, encrypted);
+  const [salt, hashValue] = encrypted.split(':');
+
+  const hashDecrypted = crypto
+    .pbkdf2Sync(decrypted, salt, 10000, 64, 'sha512')
+    .toString('hex');
+
+  return hashValue === hashDecrypted;
 }
 
 function random(length = 10) {
