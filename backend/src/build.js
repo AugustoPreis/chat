@@ -10,7 +10,7 @@ esbuild.build({
   bundle: true,
 
   // Minificar o código
-  // minify: true,
+  minify: true,
 
   // Definir ambiente como node
   platform: 'node',
@@ -19,5 +19,10 @@ esbuild.build({
   target: 'node20',
 
   // Arquivo de saída
-  outdir: './build'
+  outdir: './build',
+
+  // Ignorar dependências
+  external: [
+    'esbuild',
+  ],
 }).catch(() => process.exit(1));
