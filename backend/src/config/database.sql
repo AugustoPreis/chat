@@ -29,7 +29,7 @@ CREATE TABLE mensagens (
 CREATE TABLE public.historico (
 	id uuid NOT NULL PRIMARY KEY,
 	usuario uuid NOT NULL REFERENCES usuarios,
-	chat uuid NOT NULL REFERENCES usuarios,
+	chat uuid NOT NULL REFERENCES chats,
 	tipo varchar(20) NOT NULL,
 	descricao varchar(100) NULL,
 	data_cadastro timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL
