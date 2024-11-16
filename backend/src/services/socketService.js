@@ -100,7 +100,10 @@ async function quandoDesconectar(socket) {
 
 async function enviaMensagensAnteriores(socket) {
   try {
-    const mensagensAnteriores = await mensagensService.buscarMensagensAnteriores(socket.connectionDate);
+    const mensagensAnteriores = await mensagensService.buscarMensagensAnteriores({
+      data: socket.connectionDate,
+      chat: socket.chat.id,
+    });
 
     socket.emit('mensagens-anteriores', mensagensAnteriores);
   } catch (err) {

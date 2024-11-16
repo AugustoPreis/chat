@@ -18,12 +18,18 @@ async function buscarPorId(id) {
   return mensagem;
 }
 
-async function buscarMensagensAnteriores(data) {
+async function buscarMensagensAnteriores(params) {
+  const { chat, data } = params;
+
+  if (!isValidUUID(chat)) {
+    throw new RequestError(StatusCodes.BAD_REQUEST, 'Chat inválido');
+  }
+
   if (!isValidDate(data)) {
     return [];
   }
 
-  return mensagensRepository.buscarMensagensAnteriores(data);
+  return mensagensRepository.buscarMensagensAnteriores({ data, chat });
 }
 
 async function cadastrar(params) {

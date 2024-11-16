@@ -18,7 +18,7 @@ async function buscarPorId(id) {
   return result[0];
 }
 
-async function buscarMensagensAnteriores(data) {
+async function buscarMensagensAnteriores(params) {
   const sql = `
     SELECT
       mensagens.id,
@@ -30,12 +30,16 @@ async function buscarMensagensAnteriores(data) {
       mensagens.data_cadastro "dataCadastro"
     FROM mensagens
       INNER JOIN usuarios ON usuarios.id = mensagens.usuario
-    WHERE mensagens.data_cadastro <= $1
+    WHERE mensagens.chat = $1
+      AND mensagens.data_cadastro <= $2
       AND mensagens.ativo IS TRUE
     ORDER BY mensagens.data_cadastro;
   `;
 
-  return await database.execute(sql, [data]);
+  return await database.execute(sql, [
+    params.chat,
+    params.data,
+  ]);
 }
 
 async function cadastrar(params) {
