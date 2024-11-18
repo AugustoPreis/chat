@@ -52,22 +52,25 @@ function copyFiles(from, to, files) {
 }
 
 const version = process.argv[2];
-const packageBackend = readPkg('backend');
-const packageFrontend = readPkg('frontend');
 
-validateVersion(version);
+if (version) {
+  validateVersion(version);
 
-packageBackend.version = version;
-packageFrontend.version = version;
+  const packageBackend = readPkg('backend');
+  const packageFrontend = readPkg('frontend');
 
-writePkg('backend', packageBackend);
-writePkg('frontend', packageFrontend);
+  packageBackend.version = version;
+  packageFrontend.version = version;
+
+  writePkg('backend', packageBackend);
+  writePkg('frontend', packageFrontend);
+}
 
 generateBuild('backend');
 generateBuild('frontend');
 
 copyFiles(
-  './backend',
-  './backend/build',
+  './backend', //from
+  './backend/build', //to
   ['.env'],
 );
