@@ -1,0 +1,34 @@
+services:
+  app:
+    build:
+      context: .
+    restart: on-failure
+    container_name: app
+    ports:
+      - 3000:3000
+    env_file: ./backend/.env
+    environment:
+      - IS_DOCKER=TRUE
+      - DB_HOST=db
+    depends_on:
+      - db
+    networks:
+      - chat-network
+
+  db:
+    image: postgres:latest
+    container_name: chat-db
+    environment:
+      POSTGRES_DB: chat
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./backend/src/config:/docker-entrypoint-initdb.d
+    networks:
+      - chat-network
+
+networks:
+  chat-network:
+    driver: bridge
