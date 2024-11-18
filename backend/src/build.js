@@ -19,7 +19,7 @@ esbuild.build({
   target: 'node20',
 
   // Arquivo de saída
-  outdir: './build',
+  outdir: '../build',
 
   // Ignorar dependências
   external: [

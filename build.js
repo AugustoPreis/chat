@@ -51,6 +51,10 @@ function copyFiles(from, to, files) {
   });
 }
 
+function moveDir(from, to) {
+  fs.renameSync(from, to);
+}
+
 const version = process.argv[2];
 
 if (version) {
@@ -71,6 +75,11 @@ generateBuild('frontend');
 
 copyFiles(
   './backend', //from
-  './backend/build', //to
+  './build', //to
   ['.env'],
+);
+
+moveDir(
+  './frontend/dist', //from
+  './build/dist', //to
 );
